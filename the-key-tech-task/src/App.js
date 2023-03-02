@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { getHelloWorld } from "./api";
+import { getPosts } from "./api";
 
 function App() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    getHelloWorld().then((response) => {
-      setMessage(response);
+    getPosts().then((response) => {
+      console.log(response);
     });
   }, []);
 

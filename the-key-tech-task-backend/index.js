@@ -12,11 +12,42 @@ const WORDPRESS_API_URL = "https://www.thekey.academy/wp-json/wp/v2/posts";
 
 let posts = [];
 
+const countWords = (text) => {
+  const words =
+    text
+      .toLowerCase()
+      .replace(/(<([^>]+)>)/gi, "")
+      .match(/[a-zA-Zäöüß]+/g) || [];
+  const wordCountMap = {};
+
+  words.forEach((word) => {
+    if (!wordCountMap[word]) {
+      wordCountMap[word] = 1;
+    } else {
+      wordCountMap[word]++;
+    }
+  });
+
+  return wordCountMap;
+};
+
 const fetchPosts = async () => {
   try {
-    const response = await axios.get(WORDPRESS_API_URL);
-    console.log("fetched posts");
-    posts = response.data;
+    const response = await axios.get(`${WORDPRESS_API_URL}?_embed`);
+    posts = response.data.map((post) => {
+      return {
+        id: post.id,
+        title: post.title.rendered,
+        wordCountMap: countWords(post.content.rendered),
+        date: post.date,
+        author: post.author,
+        featuredImage: post._embedded["wp:featuredmedia"]
+          ? post._embedded["wp:featuredmedia"][0].source_url
+          : null,
+      };
+    });
+    console.log("Fetched posts from the WordPress API");
+    return posts;
   } catch (error) {
     console.error(error);
   }

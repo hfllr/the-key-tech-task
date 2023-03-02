@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
+const WebSocket = require("ws");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -12,7 +13,7 @@ const WORDPRESS_API_URL = "https://www.thekey.academy/wp-json/wp/v2/posts";
 
 let posts = [];
 
-const countWords = (text) => {
+const getWordCountMap = (text) => {
   const words =
     text
       .toLowerCase()
@@ -34,20 +35,35 @@ const countWords = (text) => {
 const fetchPosts = async () => {
   try {
     const response = await axios.get(`${WORDPRESS_API_URL}?_embed`);
-    posts = response.data.map((post) => {
-      return {
-        id: post.id,
-        title: post.title.rendered,
-        wordCountMap: countWords(post.content.rendered),
-        date: post.date,
-        author: post.author,
-        featuredImage: post._embedded["wp:featuredmedia"]
-          ? post._embedded["wp:featuredmedia"][0].source_url
-          : null,
-      };
-    });
     console.log("Fetched posts from the WordPress API");
-    return posts;
+
+    const newPosts = response.data
+      .filter((post) => {
+        return !posts.find((p) => p.id === post.id);
+      })
+      .map((post) => {
+        return {
+          id: post.id,
+          title: post.title.rendered,
+          wordCountMap: getWordCountMap(post.content.rendered),
+          date: post.date,
+          author: post.author,
+          featuredImage: post._embedded["wp:featuredmedia"]
+            ? post._embedded["wp:featuredmedia"][0].source_url
+            : null,
+        };
+      });
+
+    posts = [...posts, ...newPosts];
+
+    if (newPosts.lenght > 0) {
+      wss.clients.forEach(function each(client) {
+        if (client.readyState === WebSocket.OPEN) {
+          console.log("NEW DATA SENT WITH WEBSOCKET");
+          client.send(JSON.stringify(posts));
+        }
+      });
+    }
   } catch (error) {
     console.error(error);
   }
@@ -56,8 +72,16 @@ const fetchPosts = async () => {
 fetchPosts();
 setInterval(fetchPosts, 5000);
 
-app.get("/posts", (req, res) => {
-  res.json(posts);
+const wss = new WebSocket.Server({ port: 8080 });
+
+wss.on("connection", function connection(ws) {
+  console.log("Client connected");
+
+  ws.send(JSON.stringify(posts));
+
+  ws.on("close", function () {
+    console.log("Client disconnected");
+  });
 });
 
 app.listen(port, () => {

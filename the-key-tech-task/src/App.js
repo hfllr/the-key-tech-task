@@ -1,18 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { getPosts } from "./api";
 
 function App() {
-  const [message, setMessage] = useState("");
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    getPosts().then((response) => {
-      console.log(response);
+    const blogPostSocket = new WebSocket("ws://localhost:8080");
+
+    blogPostSocket.addEventListener("message", (event) => {
+      console.log("Received message from server:", event.data);
+      setPosts(JSON.parse(event.data));
     });
+
+    return () => {
+      blogPostSocket.close();
+    };
   }, []);
 
   return (
     <div>
-      <h1>{message}</h1>
+      <ul>
+        {posts.map((post) => (
+          <li key={post.id}>{post.title}</li>
+        ))}
+      </ul>
     </div>
   );
 }

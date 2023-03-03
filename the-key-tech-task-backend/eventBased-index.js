@@ -1,18 +1,16 @@
-const express = require("express");
-const cors = require("cors");
-const axios = require("axios");
-const WebSocket = require("ws");
-const EventSource = require("eventsource");
-const { createProxyMiddleware } = require("http-proxy-middleware");
-const getWordCountMap = require("./utils").getWordCountMap;
+import express from "express";
+import cors from "cors";
+import axios from "axios";
+import { WebSocketServer, WebSocket } from "ws";
+import EventSource from "eventsource";
+import { createProxyMiddleware } from "http-proxy-middleware";
+import { WORDPRESS_API_URL, getWordCountMap } from "./utils.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-
-const WORDPRESS_API_URL = "https://www.thekey.academy/wp-json/wp/v2";
 
 let posts = [];
 
@@ -61,7 +59,7 @@ const subscribeToWordPressUpdates = () => {
 
 subscribeToWordPressUpdates();
 
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = new WebSocketServer({ port: 8080 });
 
 wss.on("connection", function connection(ws) {
   console.log("Client connected");

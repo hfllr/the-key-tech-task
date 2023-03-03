@@ -6,8 +6,8 @@ const WebSocket = require("ws");
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors()); //allow resource sharing between front- and backend
-app.use(express.json()); //parses incoming requests with JSON payloads
+app.use(cors());
+app.use(express.json());
 
 const WORDPRESS_API_URL = "https://www.thekey.academy/wp-json/wp/v2/posts";
 
@@ -29,7 +29,15 @@ const getWordCountMap = (text) => {
     }
   });
 
-  return wordCountMap;
+  // Converts the wordCountMap object into an array of key-value pairs and sorts it
+  const sortedWordCountArray = Object.entries(wordCountMap).sort(
+    (a, b) => b[1] - a[1]
+  );
+
+  // Converts the sortedWordCountArray back into an object
+  const sortedWordCountMap = Object.fromEntries(sortedWordCountArray);
+
+  return sortedWordCountMap;
 };
 
 const fetchPosts = async () => {
@@ -46,11 +54,6 @@ const fetchPosts = async () => {
           id: post.id,
           title: post.title.rendered,
           wordCountMap: getWordCountMap(post.content.rendered),
-          date: post.date,
-          author: post.author,
-          featuredImage: post._embedded["wp:featuredmedia"]
-            ? post._embedded["wp:featuredmedia"][0].source_url
-            : null,
         };
       });
 

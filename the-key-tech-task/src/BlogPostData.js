@@ -45,7 +45,7 @@ const BlogPostData = ({ post }) => {
         wordCountChart.destroy();
       };
     }
-  }, []);
+  });
 
   return (
     <div style={{ padding: 20 }}>

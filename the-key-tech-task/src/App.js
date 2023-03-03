@@ -7,9 +7,9 @@ function App() {
   useEffect(() => {
     const blogPostSocket = new WebSocket("ws://localhost:8080");
 
-    blogPostSocket.addEventListener("message", (event) => {
+    blogPostSocket.addEventListener("message", ({ data }) => {
       console.log("Received message from server");
-      setPosts(JSON.parse(event.data));
+      setPosts(JSON.parse(data));
     });
 
     return () => {

@@ -1,7 +1,8 @@
-const express = require("express");
-const cors = require("cors");
-const axios = require("axios");
-const WebSocket = require("ws");
+import express from "express";
+import cors from "cors";
+import axios from "axios";
+import { WebSocketServer, WebSocket } from "ws";
+import { FETCH_INTERVAL, WORDPRESS_API_URL, getWordCountMap } from "./utils.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -9,36 +10,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const WORDPRESS_API_URL = "https://www.thekey.academy/wp-json/wp/v2/posts";
-
 let posts = [];
-
-const getWordCountMap = (text) => {
-  const words =
-    text
-      .toLowerCase()
-      .replace(/(<([^>]+)>)/gi, "")
-      .match(/[a-zA-Zäöüß]+/g) || [];
-  const wordCountMap = {};
-
-  words.forEach((word) => {
-    if (!wordCountMap[word]) {
-      wordCountMap[word] = 1;
-    } else {
-      wordCountMap[word]++;
-    }
-  });
-
-  // Converts the wordCountMap object into an array of key-value pairs and sorts it
-  const sortedWordCountArray = Object.entries(wordCountMap).sort(
-    (a, b) => b[1] - a[1]
-  );
-
-  // Converts the sortedWordCountArray back into an object
-  const sortedWordCountMap = Object.fromEntries(sortedWordCountArray);
-
-  return sortedWordCountMap;
-};
 
 const fetchPosts = async () => {
   try {
@@ -76,9 +48,9 @@ const fetchPosts = async () => {
 };
 
 fetchPosts();
-setInterval(fetchPosts, 5000);
+setInterval(fetchPosts, FETCH_INTERVAL);
 
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = new WebSocketServer({ port: 8080 });
 
 wss.on("connection", function connection(ws) {
   console.log("Client connected");

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import BlogPost from "./Blogpost";
+import BlogPostData from "./BlogPostData";
 
 function App() {
   const [posts, setPosts] = useState([]);
@@ -8,8 +8,7 @@ function App() {
     const blogPostSocket = new WebSocket("ws://localhost:8080");
 
     blogPostSocket.addEventListener("message", (event) => {
-      console.log("Received message from server:", event.data);
-
+      console.log("Received message from server");
       setPosts(JSON.parse(event.data));
     });
 
@@ -21,7 +20,7 @@ function App() {
   return (
     <div>
       {posts.map((post) => {
-        return <BlogPost post={post} />;
+        return <BlogPostData key={post.id} post={post} />;
       })}
     </div>
   );

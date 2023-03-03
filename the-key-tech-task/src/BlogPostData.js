@@ -1,21 +1,21 @@
 import React, { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
 
-const BlogPost = ({ post }) => {
+const BlogPostData = ({ post }) => {
   const chartRef = useRef(null);
   const getWords = Object.keys(post.wordCountMap);
 
-  const labels = [];
-  const data = [];
-
-  getWords.forEach((word) => {
-    labels.push(word);
-    data.push(post.wordCountMap[word]);
-  });
-
   useEffect(() => {
     if (post && chartRef.current) {
-      const myChart = new Chart(chartRef.current, {
+      const labels = [];
+      const data = [];
+
+      getWords.forEach((word) => {
+        labels.push(word);
+        data.push(post.wordCountMap[word]);
+      });
+
+      const wordCountChart = new Chart(chartRef.current, {
         type: "bar",
         data: {
           labels: labels,
@@ -42,10 +42,10 @@ const BlogPost = ({ post }) => {
       });
 
       return () => {
-        myChart.destroy();
+        wordCountChart.destroy();
       };
     }
-  }, [post]);
+  }, []);
 
   return (
     <div style={{ padding: 20 }}>
@@ -53,7 +53,7 @@ const BlogPost = ({ post }) => {
       <div style={{ width: "100%", overflowX: "scroll" }}>
         <div
           style={{
-            width: `${getWords.length * 50}px`,
+            width: `${getWords.length * 40}px`,
             height: 300,
           }}
         >
@@ -64,4 +64,4 @@ const BlogPost = ({ post }) => {
   );
 };
 
-export default BlogPost;
+export default BlogPostData;

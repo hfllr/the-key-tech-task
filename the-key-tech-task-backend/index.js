@@ -45,7 +45,10 @@ const fetchPosts = async () => {
     const response = await axios.get(`${WORDPRESS_API_URL}?_embed`);
     console.log("Fetched posts from the WordPress API");
 
-    const newPosts = response.data
+    const simulatedPostsLength = posts.length + 1;
+    const simulatedPosts = response.data.slice(0, simulatedPostsLength);
+
+    const newPosts = simulatedPosts
       .filter((post) => {
         return !posts.find((p) => p.id === post.id);
       })
@@ -57,9 +60,9 @@ const fetchPosts = async () => {
         };
       });
 
-    posts = [...posts, ...newPosts];
+    posts = [...newPosts, ...posts];
 
-    if (newPosts.lenght > 0) {
+    if (newPosts.length > 0) {
       wss.clients.forEach(function each(client) {
         if (client.readyState === WebSocket.OPEN) {
           console.log("NEW DATA SENT WITH WEBSOCKET");

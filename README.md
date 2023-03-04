@@ -1,4 +1,4 @@
-# the-key-tech-task
+# setup & notes
 
 - clone the repository
 - the frontend code is located in the "the-key-tech-task" directory

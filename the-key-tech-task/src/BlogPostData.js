@@ -1,20 +1,24 @@
 import React, { useEffect, useRef } from "react";
-import Chart from "chart.js/auto";
+import { Chart } from "chart.js/auto";
 
 const BlogPostData = ({ post }) => {
-  const chartRef = useRef(null);
-  const getWords = Object.keys(post.wordCountMap);
+  const chartRef = useRef(null); // creates a reference to the chart canvas
+  const getWords = Object.keys(post.wordCountMap); // gets the words from the wordCountMap object as an array
 
+  // ensures that the chart object is properly created, destroyed and updated
   useEffect(() => {
+    // safety measure, in case the data has not loaded yet
     if (post && chartRef.current) {
       const labels = [];
       const data = [];
 
+      // loops through each word of the word-count map to create the labels & values for the chart
       getWords.forEach((word) => {
         labels.push(word);
         data.push(post.wordCountMap[word]);
       });
 
+      // creates a new bar chart instance
       const wordCountChart = new Chart(chartRef.current, {
         type: "bar",
         data: {
@@ -42,6 +46,7 @@ const BlogPostData = ({ post }) => {
       });
 
       return () => {
+        // cleanup function to destroy the chart on unmount of component
         wordCountChart.destroy();
       };
     }

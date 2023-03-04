@@ -5,13 +5,17 @@ function App() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
+    // establishes a WebSocket connection to the backend
     const blogPostSocket = new WebSocket("ws://localhost:8080");
 
+    // listens for messages from the server
     blogPostSocket.addEventListener("message", ({ data }) => {
       console.log("Received message from server");
+      // updates the state with the received data only for new data
       setPosts(JSON.parse(data));
     });
 
+    // closes the WebSocket connection on unmounting of the component
     return () => {
       blogPostSocket.close();
     };

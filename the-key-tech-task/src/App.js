@@ -10,7 +10,9 @@ function App() {
 
     // listens for messages from the server
     blogPostSocket.addEventListener("message", ({ data }) => {
-      console.log("Received message from server");
+      console.log("Received message from server: ");
+      console.log(JSON.parse(data));
+
       // updates the state with the received data only for new data
       setPosts(JSON.parse(data));
     });
